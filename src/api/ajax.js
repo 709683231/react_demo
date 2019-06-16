@@ -5,10 +5,10 @@ export default function ajax(url,data={},math){
     return new Promise((resolve,reject)=>{
         let promise 
         if(math === 'POST'){
-           promise = axios.post(url,{params:data})
+           promise = axios.post(url,data)
     
         }else if(math === 'GET'){
-            promise = axios.get(url,data)
+            promise = axios.get(url,{params:data})
         }
         promise.then(
             response => {resolve(response.data)},

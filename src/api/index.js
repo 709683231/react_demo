@@ -1,5 +1,5 @@
 import ajax from './ajax';
-const BASE = ''
+const BASE = 'http://localhost3000'
 //登陆
 export const reqLogin = (username,password) => ajax(BASE+'/login',{username,password},'POST')
 //添加用户
