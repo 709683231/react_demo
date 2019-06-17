@@ -5,6 +5,3 @@ export const reqLogin = (username,password) => ajax(BASE+'/login',{username,pass
 //添加用户
 export const reqAddUser = (user) => ajax(BASE+'/manage/user/add',user,'POST')
 
-reqLogin('admin','admin').then(result =>{
-    console.log(result)
-})

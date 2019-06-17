@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button,message } from 'antd';
 import logo from './images/logo.png';
+import {reqLogin} from '../../api';
 import './Login.less';
+import {Redirect} from 'react-router-dom'
+import memoryUtil from '../../utils/memoryutil'
 
 class Login extends Component {
     handlerPassword = (rule, value, callback)=>{
@@ -21,14 +24,29 @@ class Login extends Component {
     }
     handleSubmit = (e) => {
         e.preventDefault();        
-        this.props.form.validateFields((err,values)=>{           
+        this.props.form.validateFields( async (err,values)=>{           
             if(!err){
-                // console.log(values)
+                const {username,password} = values;
+                const result = await reqLogin(username,password)          
+                //跳转到admin
+                if(result.status === 0){ 
+                    const user = result.data;  
+                    memoryUtil.user = user;
+                    localStorage.setItem('KEY_NAME',JSON.stringify(user))                      
+                    this.props.history.replace('/')
+                } else {
+                    message.error(result.msg,2)
+                }
+
             }
         })
     }
     render() {
         const { getFieldDecorator } = this.props.form
+        if(memoryUtil.user._id){
+            console.log(memoryUtil.user._id)
+            return <Redirect to='/'/>
+        }
         return (
             <div className='login'>
                 <header className='login-header'>
