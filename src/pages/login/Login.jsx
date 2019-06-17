@@ -3,8 +3,9 @@ import { Form, Icon, Input, Button,message } from 'antd';
 import logo from './images/logo.png';
 import {reqLogin} from '../../api';
 import './Login.less';
-import {Redirect} from 'react-router-dom'
-import memoryUtil from '../../utils/memoryutil'
+import {Redirect} from 'react-router-dom';
+import memoryUtil from '../../utils/memoryutil';
+import {setMemory} from '../../utils/memoryTool';
 
 class Login extends Component {
     handlerPassword = (rule, value, callback)=>{
@@ -32,7 +33,8 @@ class Login extends Component {
                 if(result.status === 0){ 
                     const user = result.data;  
                     memoryUtil.user = user;
-                    localStorage.setItem('KEY_NAME',JSON.stringify(user))                      
+                    // localStorage.setItem('KEY_NAME',JSON.stringify(user)) 
+                    setMemory('KEY_NAME',user);                     
                     this.props.history.replace('/')
                 } else {
                     message.error(result.msg,2)
