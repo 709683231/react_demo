@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Icon, Input, Button,message } from 'antd';
-import logo from './images/logo.png';
+import logo from '../../assets/images/logo.png';
 import {reqLogin} from '../../api';
 import './Login.less';
 import {Redirect} from 'react-router-dom';
