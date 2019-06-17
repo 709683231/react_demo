@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-export default function ajax(url,data={},math){
+export default function ajax(url,data={},math='GET'){
     return new Promise((resolve,reject)=>{
         let promise 
         if(math === 'POST'){
@@ -19,14 +19,3 @@ export default function ajax(url,data={},math){
 
 }
 
-async function login(){
-   const result = await ajax('/login',{
-       username:'admin',
-       password:'admin'
-    },'POST')
-    if(result.status === 0){
-
-    }else {
-
-    }
-}
