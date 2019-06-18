@@ -2,4 +2,53 @@
     background: #ffffff;
     height: 80px;
     margin: 0px;
+    .header-top{
+        height: 40px;
+        line-height: 40px;
+        text-align: right;
+        border-bottom: 1px solid green;
+        button{
+            margin: 0 15px;
+        }
+        span{
+            font-size: 15px;
+        }
+    }
+    .header-bottom{  
+        display: flex;
+        align-items: center;
+        height: 40px;
+        .header-bottom-left{
+            position: relative;
+            text-align: center;
+            width: 25%;
+            font-size: 20px;
+            &::after{
+                content: '';
+                position: absolute;
+                top: 30px;
+                left: 50%;
+                transform: translateX(-50%); 
+                border-top: 15px solid #ffffff;
+                border-right: 15px solid transparent;
+                border-bottom: 15px solid transparent;
+                border-left: 15px solid transparent;
+            }
+        }
+        .header-bottom-right{
+            text-align: right;
+            width: 75%;
+            img{
+                width: 30px;
+                height: 20px;
+                margin: 0 15px;
+            }
+            .header-bottom-right-span{
+                margin-right: 20px;
+            }
+
+        }
+        
+
+    }
 }

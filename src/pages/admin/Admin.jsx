@@ -17,7 +17,7 @@ import Line from '../charts/line'
 import Pie from '../charts/pie'
 
 
-const { Header, Footer, Sider, Content } = Layout;
+const {Footer, Sider, Content } = Layout;
 
 
 export default class Admin extends Component{
