@@ -46,7 +46,6 @@ class Login extends Component {
     render() {
         const { getFieldDecorator } = this.props.form
         if(memoryUtil.user._id){
-            console.log(memoryUtil.user._id)
             return <Redirect to='/'/>
         }
         return (
