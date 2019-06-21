@@ -20,6 +20,8 @@ export const reqProductList = (pageNum,pageSize) => ajax(BASE + '/manage/product
 export const reqProductSearchList = (pageNum,pageSize,searchType,searchName) => ajax(BASE + '/manage/product/search',{pageNum,pageSize,[searchType]:searchName})
 //对商品进行上架/下架处理
 export const reqUpdateStatus = (productId,status) => ajax(BASE + '/manage/product/updateStatus',{productId,status},'POST')
+// 添加商品
+export const reqSubmit = (categoryId ,pCategoryId,name ) => ajax(BASE + '/manage/product/add',{categoryId ,pCategoryId,name },'POST')
 
 
 //发送jsonp请求
