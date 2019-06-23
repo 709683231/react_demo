@@ -1,7 +1,8 @@
 import React ,{Component} from 'react';
-import { Upload, Icon, Modal } from 'antd';
+import { Upload, Icon, Modal, message } from 'antd';
 import {BASE_IMG_URL} from '../../utils/constants';
 import ProtoTypes from 'prop-types';
+import {reqDeleteImg} from '../../api';
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -13,24 +14,28 @@ function getBase64(file) {
 }
 
 export default class PicturesWall extends Component {
-  static ProtoTypes = {
+
+  static protoTypes = {
       imgs:ProtoTypes.array
   }  
   state = {
     previewVisible: false,
     previewImage: '',
     fileList: [
-      {
-        uid: '-1',
-        name: 'xxx.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      },
-    ],
+      // {
+      //   uid: '-1',
+      //   name: 'xxx.png',
+      //   status: 'done',
+      //   url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+      // },
+    ]
   };
-
+  getImgs = ()=>{
+    return this.state.fileList.map(file => file.name)
+  }
+  //关闭大图预览
   handleCancel = () => this.setState({ previewVisible: false });
-
+  //打开大图预览
   handlePreview = async file => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -41,8 +46,47 @@ export default class PicturesWall extends Component {
       previewVisible: true,
     });
   };
+  //文件对象发生改变时的回调
+  handleChange = async ({file, fileList }) => {
+    console.log(file,fileList)
+    if(file.status==='done'){
+      const result = file.response;
+      if(result.status===0){
+        const name = result.data.name;
+        const url = result.data.url;
+        fileList[fileList.length-1].name = name
+        fileList[fileList.length-1].url = url
+      }else{
+        message.error('图片上传失败')
+      }
+    }else if(file.status==='removed'){
+      const result = await reqDeleteImg(file.name);
+      if(result.status===0){
+        message.success('删除图片成功')
+      }else{
+        message.error('删除图片失败')
+      }
+    }
+    this.setState({
+      fileList
+    })
+  };
+  componentWillMount(){
+    const {imgs} = this.props;
+    if(imgs && imgs.length>0){
+      const fileList = imgs.map((img,index)=>({
+        uid: -index + '',
+        name: img,
+        url: BASE_IMG_URL + img,
+        status: 'done',
+      }))
+      this.setState({
+        fileList
+      })
+    }
+  }
 
-  handleChange = ({ fileList }) => this.setState({ fileList });
+
 
   render() {
     const { previewVisible, previewImage, fileList } = this.state;
@@ -53,11 +97,12 @@ export default class PicturesWall extends Component {
       </div>
     );
     return (
-      <div className="clearfix">
+      <div >
         <Upload
-          action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+          action="/manage/img/upload"
           listType="picture-card"
           fileList={fileList}
+          name='image'
           onPreview={this.handlePreview}
           onChange={this.handleChange}
         >

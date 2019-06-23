@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { reqSubmit ,reqCategorys } from '../../api'
+import { reqAddAndUpdateProduct ,reqCategorys } from '../../api'
 import PicturesWall from './pictures-wall';
 import {
     Card,
@@ -8,11 +8,17 @@ import {
     Icon,
     Cascader,
     Button,
+    message,
 } from 'antd';
 import LinkButton from '../../components/link-button'
 
 
 class AddUpdata extends Component {
+    constructor(props){
+        super(props)
+        this.pwRef = React.createRef();
+       
+    }
     state = {
         options:[]//级联列表的数据
     }
@@ -24,13 +30,39 @@ class AddUpdata extends Component {
         }
     }
     submit = async () => {
-        this.props.form.validateFields((err,value)=>{
+        this.props.form.validateFields( async (err,value)=>{
             if(!err){
-               console.log(value)
+                const {name,desc,price,categoryIds} = value;
+                let categoryId ,pCategoryId;
+                if(categoryIds.length===1){
+                    pCategoryId = '0';
+                    categoryId = categoryIds[0];
+                }else{
+                    pCategoryId = categoryIds[0]
+                    categoryId = categoryIds[1]
+                }
+               const imgs = this.pwRef.current.getImgs();
+               
+               const product = {
+                   name,
+                   desc,
+                   price,
+                   categoryId,
+                   pCategoryId,
+                   imgs,
+                   
+
+               }
+               if(this.isUpdate){
+                product._id = this.product._id
+               }
+               const result = await reqAddAndUpdateProduct(product);
+               if(result.status===0){
+                message.success((this.isUpdate?'更新':'添加') + '商品添加成功')
+                this.props.history.goBack()
+               }
             }
         })
-        // const result = await reqSubmit()
-        // result = {}
     }
 
     loadData =  async selectedOptions => {
@@ -40,7 +72,7 @@ class AddUpdata extends Component {
         const result = await this.getCategorys(pCategoryId)
         targetOption.loading = false;
         console.log('loadData',result)
-        if(!result && result.length===0){
+        if(!result || result.length===0){
             selectedOptions[0].isLeaf = true
         }else{
             targetOption.children = result.map((item)=>({
@@ -54,12 +86,25 @@ class AddUpdata extends Component {
         })
     }
 
-    initOptions = (Categorys)=>{
+    initOptions =async (Categorys)=>{
         const options = Categorys.map((item)=>({
             label:item.name,
             value:item._id,
             isLeaf:false
         }))
+
+        const {product,isUpdate} = this
+        if(isUpdate && product.pCategoryId!=='0'){
+            const result = await this.getCategorys(product.pCategoryId)
+            if(result && result.length>0){
+                const targetOption = options.find(option => option.value===product.pCategoryId)
+                targetOption.children = result.map( c => ({
+                    label:c.name,
+                    value:c._id,
+                    isLeaf:true
+                }))
+            }
+        }
         this.setState({
             options
         })
@@ -75,16 +120,30 @@ class AddUpdata extends Component {
             }
         }
     }
+    componentWillMount(){
+        this.product = this.props.location.state || {};
+        this.isUpdate = !!this.product._id
+    }
     componentDidMount(){
         this.getCategorys('0')
     }
     render() {
+        const {product,isUpdate} = this;
+        if(product._id){
+            if(product.pCategoryId==='0'){
+                product.categoryIds = [product.categoryId]
+            }else{
+                product.categoryIds = [product.pCategoryId,product.categoryId]
+            }
+        }else{
+            product.categoryIds = []
+        }
         const title = (
             <span>
                 <LinkButton onClick={() => this.props.history.goBack()}>
                     <Icon type='arrow-left'></Icon>
                 </LinkButton>
-                <span>添加商品</span>
+                <span>{isUpdate?'更新商品':'添加商品'}添加商品</span>
             </span>
         );
         const { getFieldDecorator } = this.props.form
@@ -99,6 +158,7 @@ class AddUpdata extends Component {
                 <Form {...formItemLayout}>
                     <Form.Item label="商品名称" >
                         {getFieldDecorator('name', {
+                            initialValue: product.name,
                             rules: [
                                 { required: true, message: '商品名称必须输入', }
                             ]
@@ -110,6 +170,7 @@ class AddUpdata extends Component {
 
                     <Form.Item label="商品描述" >
                         {getFieldDecorator('desc', {
+                            initialValue: product.desc,
                             rules: [
                                 { required: true, message: '商品描述必须输入'}
                             ]
@@ -118,6 +179,7 @@ class AddUpdata extends Component {
 
                     <Form.Item label="商品价格" >
                         {getFieldDecorator('price', {
+                            initialValue: product.price,
                             rules: [
                                 {required: true, message: '请输入商品价格'},
                                 {validator: this.validatePrice}
@@ -127,6 +189,7 @@ class AddUpdata extends Component {
 
                     <Form.Item label="商品分类" >
                         {getFieldDecorator('categoryIds', {
+                            initialValue: product.categoryIds,
                             rules: [
                                 { required: true,message: '商品分类必须指定'}
                             ]
@@ -136,7 +199,7 @@ class AddUpdata extends Component {
                     </Form.Item>
 
                     <Form.Item label="商品图片" >
-                        <PicturesWall />
+                        <PicturesWall ref={this.pwRef} imgs={product.imgs}/>
                     </Form.Item>
 
                     <Button onClick={this.submit}>提交</Button>

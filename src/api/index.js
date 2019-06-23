@@ -10,6 +10,8 @@ export const reqLogin = (username,password) => ajax(BASE+'/login',{username,pass
 export const reqAddUser = (user) => ajax(BASE+'/manage/user/add',user,'POST')
 //获取数据
 export const reqCategorys = (parentId)=> ajax(BASE + '/manage/category/list',{parentId},'GET')
+//根据分类ID获取分类
+export const reqCategory = (categoryId)=> ajax(BASE + '/manage/category/info',{categoryId})
 //更新数据
 export const reqUpdateCategory = (categoryId,categoryName) => ajax(BASE + '/manage/category/update',{categoryId,categoryName},'POST')
 //添加分组
@@ -21,7 +23,15 @@ export const reqProductSearchList = (pageNum,pageSize,searchType,searchName) => 
 //对商品进行上架/下架处理
 export const reqUpdateStatus = (productId,status) => ajax(BASE + '/manage/product/updateStatus',{productId,status},'POST')
 // 添加商品
-export const reqSubmit = (categoryId ,pCategoryId,name ) => ajax(BASE + '/manage/product/add',{categoryId ,pCategoryId,name },'POST')
+//export const reqSubmit = (categoryId ,pCategoryId,name ) => ajax(BASE + '/manage/product/add',{categoryId ,pCategoryId,name },'POST')
+// 更新/添加商品
+export const reqAddAndUpdateProduct = (product) => ajax(BASE + '/manage/product/'+(product._id?'update':'add'),product,'POST')
+//上传图片
+export const reqImgUpLoad = (image) => ajax(BASE + '/manage/img/upload','image','POST')
+//删除图片
+export const reqDeleteImg = (name) => ajax(BASE + '/manage/img/delete',{name},'POST')
+
+
 
 
 //发送jsonp请求
