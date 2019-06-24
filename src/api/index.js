@@ -8,6 +8,9 @@ const BASE = ''
 export const reqLogin = (username,password) => ajax(BASE+'/login',{username,password},'POST')
 //添加用户
 export const reqAddUser = (user) => ajax(BASE+'/manage/user/add',user,'POST')
+//获取所有用户列表
+export const reqUserList = () => ajax(BASE+'/manage/user/list',{})
+
 //获取数据
 export const reqCategorys = (parentId)=> ajax(BASE + '/manage/category/list',{parentId},'GET')
 //根据分类ID获取分类
