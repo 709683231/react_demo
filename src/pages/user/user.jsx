@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Card, Button,Table } from 'antd';
+import { Card, Button,Table,Modal } from 'antd';
 import LinkButton from '../../components/link-button';
-import {reqUserList} from '../../api'
+import {reqUserList,reqDeleteUser,reqAddOrUpdateUser} from '../../api'
 import {PAGE_SIZE} from '../../utils/constants'
+import UserForm from './user-form'
 /**
  * 用户管理
  */
@@ -10,7 +11,7 @@ export default class User extends Component {
   state = {
     isShow : false,
     users:[] ,// 所有用户的列表
-
+    roles:[]
   }
   initUserList = async ()=>{
     this.columns = [
@@ -44,8 +45,8 @@ export default class User extends Component {
         title: '操作',
         render: (user)=>(
           <span>
-            <LinkButton style={{marginRight:'10px'}}>修改</LinkButton>
-            <LinkButton>删除</LinkButton>
+            <LinkButton onClick={()=>this.showUpdate(user)} style={{marginRight:'10px'}}>修改</LinkButton>
+            <LinkButton onClick={()=>this.clcikDelete(user)}>删除</LinkButton>
           </span>
         )
       },
@@ -53,7 +54,57 @@ export default class User extends Component {
   }
   getUsers = async ()=>{
     const result = await reqUserList();
-    
+    if(result.status === 0){
+      const {users ,roles} = result.data
+      this.rolesObj = roles.reduce((pre,role)=>{
+        pre[role._id] = role
+        return pre
+      },{})
+      this.setState({
+        users,
+        roles
+      })
+    }
+  }
+  AddOrUpdateUser = ()=>{
+    this.form.validateFields( async (err,user)=>{
+      if(!err){
+        this.form.resetFields()
+        if(this.user){
+          user._id = this.user._id
+        }
+        this.setState({
+          isShow:false
+        })
+        const result = await reqAddOrUpdateUser(user)
+        if(result.status===0){
+          this.getUsers()
+        }
+      }
+    })
+  }
+  showUpdate = (user)=>{
+    this.user = user
+    this.setState({
+      isShow:true
+    })
+  }
+  showAddUser = () =>{
+    this.user = null
+    this.setState({
+      isShow:true
+    })
+  }
+  clcikDelete = (user)=>{
+    Modal.confirm({
+      content:`确定要删除${user.username}用户吗`,
+      onOk:async ()=>{
+        const result = await reqDeleteUser(user._id)
+        if(result.status===0){
+          this.getUsers()
+        }
+      }
+    })
   }
   componentWillMount(){
     this.initUserList()
@@ -62,10 +113,11 @@ export default class User extends Component {
     this.getUsers()
   }
   render() {
-    const {users} = this.state;
     const {columns} = this;
+    const {users,roles,isShow} = this.state
+    const user = this.user || {}
     
-    const title = <Button type='primary'>创建用户</Button>
+    const title = <Button type='primary' onClick={this.showUpdate}>创建用户</Button>
     return (
       <Card title={title}>
         <Table
@@ -75,6 +127,18 @@ export default class User extends Component {
           rowKey='_id'
           pagination={{ defaultPageSize: PAGE_SIZE }}
         />
+         <Modal
+            title={user._id ? '修改用户' : '添加用户'}
+            visible={isShow}
+            onCancel={() => this.setState({ isShow: false })}
+            onOk={this.AddOrUpdateUser}
+          >
+            <UserForm
+              setForm={(form) => this.form = form}
+              user={user}
+              roles={roles}
+            />
+          </Modal>
       </Card>
     )
   }

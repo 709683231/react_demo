@@ -10,6 +10,17 @@ export const reqLogin = (username,password) => ajax(BASE+'/login',{username,pass
 export const reqAddUser = (user) => ajax(BASE+'/manage/user/add',user,'POST')
 //获取所有用户列表
 export const reqUserList = () => ajax(BASE+'/manage/user/list',{})
+//删除用户
+export const reqDeleteUser = (userId) => ajax(BASE+'/manage/user/delete',{userId},'POST')
+//添加更新用户
+export const reqAddOrUpdateUser = (user) => ajax(BASE+'/manage/user/'+(user._id?'updata':'add'),user,'POST')
+//获取角色列表
+export const reqRoles = () => ajax(BASE+'/manage/role/list',{})
+//获取添加角色
+export const reqAddRole = (roleName) => ajax(BASE+'/manage/role/add',{roleName},'POST')
+//给角色授权
+export const reqUpdateRole = (role) => ajax(BASE+'/manage/role/update',role,'POST')
+
 
 //获取数据
 export const reqCategorys = (parentId)=> ajax(BASE + '/manage/category/list',{parentId},'GET')
